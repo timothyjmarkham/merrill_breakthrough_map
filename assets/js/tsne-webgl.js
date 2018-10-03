@@ -1,3 +1,4 @@
+
 /**
 * Globals
 **/
@@ -100,7 +101,7 @@ function getCamera() {
 **/
 
 function getLight(scene) {
-  var light = new THREE.PointLight(0x111111, 1, 0);
+  var light = new THREE.PointLight(0xffffff, 1, 0);
   light.position.set(1, 1, 100);
   scene.add(light);
   return light;
@@ -112,24 +113,13 @@ function getLight(scene) {
 
 function getRenderer() {
   // Create the canvas with a renderer
-  renderer = new THREE.WebGLRenderer({antialias: true});
-  console.log(renderer);
+  var renderer = new THREE.WebGLRenderer({antialias: true});
   // Add support for retina displays
   renderer.setPixelRatio(window.devicePixelRatio);
   // Specify the size of the canvas
   renderer.setSize(window.innerWidth, window.innerHeight);
-   console.log(renderer.domElement);
   // Add the canvas to the DOM
-  c = document.body.children;
-    for (x in c){
-      console.log(x);
-  }
-    
   document.body.appendChild(renderer.domElement);
-  c = document.body.children;
-  for (x in c){
-      console.log(x);
-  }
   return renderer;
 }
 
@@ -168,36 +158,35 @@ function get(url, handleSuccess) {
   xmlhttp.send();
 };
 
-/**
-* Load image positional data, and once it arrives parse
-* the image data, render the hotspots and conditionally
-* build the 32px geometries
-**/
-
 function checkboxFunction() {
     var brands=document.getElementsByName('brands');
     selectedBrands="";
     for(var i=0; i<brands.length; i++){
         if(brands[i].type=='checkbox' && brands[i].checked==true)
-                    selectedBrands+=brands[i].value.toLowerCase()+"\n";
+                    selectedBrands+=brands[i].value+"\n";
     } 
     console.log(selectedBrands);
     loadData();
     /*window.location.hash = '#Refresh';*/
 }
 
+/**
+* Load image positional data, and once it arrives parse
+* the image data, render the hotspots and conditionally
+* build the 32px geometries
+**/
+'merrill|morganstanley|charles|ubs|fidelity|jpmorgan'
 function loadData() {
   get('brand_counts.json', function(data) {
     var brandData = JSON.parse(data);
     var brandCountsHolder = brandData["count"];
     brandCounts = [
-    {x: "MerrillLynch", value: brandCountsHolder["MerrillLynch"]},
-    {x: "MorganStanley", value: brandCountsHolder["MorganStanley"]},
-    {x: "CharlesSchwab", value: brandCountsHolder["CharlesSchwab"]},
+    {x: "Merrill Lynch", value: brandCountsHolder["MerrillLynch"]},
+    {x: "Morgan Stanley", value: brandCountsHolder["MorganStanley"]},
+    {x: "Charles Schwab", value: brandCountsHolder["CharlesSchwab"]},
     {x: "UBS", value: brandCountsHolder["UBS"]},
     {x: "Fidelity", value: brandCountsHolder["Fidelity"]},
-    {x: "JPMorgan", value: brandCountsHolder["JPMorgan"]}
-];
+    {x: "JP Morgan", value: brandCountsHolder["JPMorgan"]}]
   })    
   get('brand_clusters.json', function(data) {
     clusterData = JSON.parse(data);
@@ -218,7 +207,7 @@ function loadData() {
     data = {};
     for(var i=0; i<dataHold.positions.length; i++){
         //console.log(dataHold.positions[i]);
-        if (selectedBrands.includes(dataHold.positions[i][0].substring(0, 4))) {
+        if (selectedBrands.toLowerCase().includes(dataHold.positions[i][0].substring(0, 3))) {
             dataPositions.push(dataHold.positions[i]);
             //console.log(dataHold.positions[i]);
         } else{
@@ -230,7 +219,8 @@ function loadData() {
     data['positions'] = dataPositions;
     data['centroids'] = dataHold['centroids'];
     data['atlas_counts'] = dataHold['atlas_counts'];
-    //console.log(data);
+    console.log(data);
+    console.log(selectedBrands);
     // Set the atlas counts
     atlasCounts = data.atlas_counts;
     // Load the atlas files
@@ -241,7 +231,6 @@ function loadData() {
     renderHotspots(data.centroids);
     // Create the geometries if all data has loaded
     startIfReady();
-    console.log('I got here');
   })
 }
 
@@ -502,7 +491,6 @@ function handleTexture(textureIndex, texture) {
 **/
 
 function startIfReady() {
-  
   var atlasCount = atlasCounts['128px'];
   var loadedAtlasCount = Object.keys(materials['128']).length;
   if (loadedAtlasCount === atlasCount &&
@@ -514,37 +502,6 @@ function startIfReady() {
     button.addEventListener('click', function() {
       removeLoader()
       setTimeout(buildGeometry, 1100)
-    })
-    var refresh = document.querySelector('#refresh');
-    refresh.style.opacity = 1;
-    refresh.addEventListener('click', function() {
-        
-       var children2 = document.getElementsByTagName("canvas");
-
-      scene.remove(mesh);
-      var breakthroughCanvas = children2[1];
-      btcanvasWidth = breakthroughCanvas.width; 
-      btcanvasHeight = breakthroughCanvas.height;
-      ctxBg = breakthroughCanvas.getContext("webgl"); 
-      //ctxBg.clearColor(1.0, 1.0, 0.0 , 1.0)
-      //ctxBg.clear(ctxBg.COLOR_BUFFER_BIT);
-      //console.log(ctxBg);
-      //children2[1].parentNode.removeChild(children2[1]); 
-      //ctxBg.clearRect(0, 0, btcanvasWidth.width, btcanvasHeight.height);  
-      var children2 = document.getElementsByTagName("canvas");
-      /*//document.body.removeChild(renderer.domElement);
-      var renderer = new THREE.WebGLRenderer({antialias: true});
-      // Add support for retina displays
-      renderer.setPixelRatio(window.devicePixelRatio);
-      // Specify the size of the canvas
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      // Add the canvas to the DOM
-      document.body.appendChild(renderer.domElement);
-      //renderer.clearRect(0, 0,  window.innerWidth, window.innerHeight );*/
-      
-      removeLoader()
-      setTimeout(buildGeometry, 1100)
-      console.log('refreshed');
     })
   }
 }
@@ -559,7 +516,7 @@ function startIfReady() {
 **/
 
 function buildGeometry() {
-  var meshCount = Math.ceil( imageDataKeys.length / imagesPerMesh );
+  meshCount = Math.ceil( imageDataKeys.length / imagesPerMesh );
   for (var i=0; i<meshCount; i++) {
     var geometry = new THREE.Geometry();
     var meshImages = imageDataKeys.slice(i*imagesPerMesh, (i+1)*imagesPerMesh);
@@ -913,13 +870,7 @@ function onMouseup(event) {
   // Return if the user hasn't clicked anything or is dragging
   if (!selected.length || !(mouse.equals(lastMouse))) return;
   // The 0th member is closest to the camera
-  for (var i = 0; i < selected.length; i++){
-      if (selected[i].faceIndex < 10000){
-          selected = selected[i];
-          break;
-      }
-  }
-  // selected = selected[0];
+  selected = selected[0];
   // Identify the selected item's face within its parent mesh
   var faceIndex = selected.faceIndex;
   // Identify the selected item's mesh index
@@ -928,7 +879,6 @@ function onMouseup(event) {
   var imageIndex = (meshIndex * imagesPerMesh) + Math.floor(faceIndex / 2);
   // Store the image name in the url hash for reference
   window.location.hash = imageDataKeys[imageIndex];
-  console.log("image index: " , imageIndex, "faceIndex", faceIndex, "meshIndex", meshIndex);
   flyTo(
     selected.point.x,
     selected.point.y,
@@ -1017,40 +967,40 @@ function addWindowEventListeners() {
     flyTo(coords.x, coords.y, coords.z);
     
     var popupImage = document.getElementById("popupImage");
-    var imageLocation = "thumbs/256px/" + hash + ".jpg";
+    var imageLocation = "thumbs/128px/" + hash + ".jpg";
     popupImage.setAttribute("src", imageLocation);
        
     var marker = new Marker();
-    marker.XPos = (((coords.x + 12980)/(18880 + 12980)) * 300) - (marker.Width / 2);
-    marker.YPos = (193 - ((coords.y + 1088)/(11312 + 1088)) * 193) - marker.Height;
+    marker.XPos = (((coords.x -800)/(26560 - 800)) * 300) - (marker.Width / 2);
+    marker.YPos = (193 - ((coords.y + 24496)/(27616 + 24496)) * 193) - marker.Height;
       
     context.drawImage(mapSprite, 0, 0, 300, 193);
       
     context.drawImage(marker.Sprite, marker.XPos, marker.YPos, marker.Width, marker.Height);
     
-    var imageBrandName = imageBrand[hash];
+    var imageBrandName = imageBrand[hash + ".jpg"];
       
     $("#brandname").html('Creative Asset Brand: ' + imageBrandName);
       
-    var imageClusterName = imageCluster[hash];
+    var imageClusterName = imageCluster[hash + ".jpg"];
     var thisClusterData = clusterData[imageClusterName];
       
     var clustnum = Number(imageClusterName) + 1;
     var clustPrint = clustnum.toString();
       
-    $("#clustername").html('Cluster: ' + clustPrint );
+    $("#clustername").html('Cluster: ' + clustPrint + " " + coords.x + " " + coords.y);
     
     var brandPercentage = brandPercentages[imageClusterName][imageBrandName];
       
     $("#brandpercentage").html('% of Brand in This Cluster: ' + (brandPercentage * 100).toFixed(1) + "%"); 
                                                
     clusterCounts = [
-    {x: "MerrillLynch", value: thisClusterData["MerrillLynch"]},
-    {x: "MorganStanley", value: thisClusterData["MorganStanley"]},
-    {x: "CharlesSchwab", value: thisClusterData["CharlesSchwab"]},
+    {x: "Merrill Lynch", value: thisClusterData["MerrillLynch"]},
+    {x: "Morgan Stanley", value: thisClusterData["MorganStanley"]},
+    {x: "Charles Schwab", value: thisClusterData["CharlesSchwab"]},
     {x: "UBS", value: thisClusterData["UBS"]},
     {x: "Fidelity", value: thisClusterData["Fidelity"]},
-    {x: "JPMorgan", value: thisClusterData["JPMorgan"]}
+    {x: "JP Morgan", value: thisClusterData["JPMorgan"]}
     ]
       
     mapChart.data(brandCounts);
@@ -1064,6 +1014,47 @@ function addWindowEventListeners() {
 }
 
 
+function addRefreshEventListener() {
+    var refresh = document.querySelector('#refresh');
+    refresh.style.opacity = 1;
+    refresh.addEventListener('click', function() {
+        
+      while (scene.children.length){
+        scene.remove(scene.children[0]);
+      }
+      meshes = [];
+      imageData = {};
+      imageDataKeys = [];
+      geometry = null;
+      /*var breakthroughCanvas = children2[1];
+      btcanvasWidth = breakthroughCanvas.width; 
+      btcanvasHeight = breakthroughCanvas.height;
+      ctxBg = breakthroughCanvas.getContext("webgl"); 
+      ctxBg.clearColor(1.0, 1.0, 0.0 , 1.0)
+      ctxBg.clear(ctxBg.COLOR_BUFFER_BIT);
+      console.log(ctxBg);
+      //children2[1].parentNode.removeChild(children2[1]); 
+      //ctxBg.clearRect(0, 0, btcanvasWidth.width, btcanvasHeight.height);  
+      var children2 = document.getElementsByTagName("canvas");
+      //document.body.removeChild(renderer.domElement);
+      var renderer = new THREE.WebGLRenderer({antialias: true});
+      // Add support for retina displays
+      renderer.setPixelRatio(window.devicePixelRatio);
+      // Specify the size of the canvas
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      // Add the canvas to the DOM
+      document.body.appendChild(renderer.domElement);
+      //renderer.clearRect(0, 0,  window.innerWidth, window.innerHeight );*/
+      
+      //removeLoader()
+      setTimeout(buildGeometry, 1100)
+      console.log('meshcount = ' + meshCount);
+      scenecount = scene.children;
+      for (var i=0; i<scenecount.length; i++) {
+        console.log('scene child ' + scenecount[i]);
+      }
+    })
+}
 
 
 /**
@@ -1090,9 +1081,9 @@ var light = getLight(scene);
 var renderer = getRenderer();
 var controls = getControls(camera, renderer);
 
-/*var mapImg = document.getElementById('fullMap'); 
+var mapImg = document.getElementById('fullMap'); 
 var mapwidth = mapImg.clientWidth;
-var mapheight = mapImg.clientHeight;*/
+var mapheight = mapImg.clientHeight;
 
 
 var canvas = document.getElementById('Canvas');
@@ -1104,7 +1095,7 @@ mapSprite.src = "assets/images/Merrill Full Map.png";
 
 var Marker = function () {
     this.Sprite = new Image();
-    this.Sprite.src = "assets/images/map marker.png"
+    this.Sprite.src = "assets/images/map marker.png";
     this.Width = 12;
     this.Height = 20;
     this.XPos = 0;
@@ -1129,5 +1120,7 @@ clusterChart.title("In Cluster");
 firstLoad()
 addCanvasEventListeners()
 addWindowEventListeners()
+addRefreshEventListener()
 loadData()
+
 
