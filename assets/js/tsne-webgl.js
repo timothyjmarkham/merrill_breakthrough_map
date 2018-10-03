@@ -978,11 +978,11 @@ function addWindowEventListeners() {
       
     context.drawImage(marker.Sprite, marker.XPos, marker.YPos, marker.Width, marker.Height);
     
-    var imageBrandName = imageBrand[hash + ".jpg"];
+    var imageBrandName = imageBrand[hash];
       
     $("#brandname").html('Creative Asset Brand: ' + imageBrandName);
       
-    var imageClusterName = imageCluster[hash + ".jpg"];
+    var imageClusterName = imageCluster[hash];
     var thisClusterData = clusterData[imageClusterName];
       
     var clustnum = Number(imageClusterName) + 1;
