@@ -971,8 +971,8 @@ function addWindowEventListeners() {
     popupImage.setAttribute("src", imageLocation);
        
     var marker = new Marker();
-    marker.XPos = (((coords.x -800)/(26560 - 800)) * 300) - (marker.Width / 2);
-    marker.YPos = (193 - ((coords.y + 24496)/(27616 + 24496)) * 193) - marker.Height;
+    marker.XPos = (((coords.x + 13020)/(18940 + 13020)) * 300) - (marker.Width / 2);
+    marker.YPos = (193 - ((coords.y + 1088)/(11344 + 1088)) * 193) - marker.Height;
       
     context.drawImage(mapSprite, 0, 0, 300, 193);
       
@@ -988,7 +988,7 @@ function addWindowEventListeners() {
     var clustnum = Number(imageClusterName) + 1;
     var clustPrint = clustnum.toString();
       
-    $("#clustername").html('Cluster: ' + clustPrint + " " + coords.x + " " + coords.y);
+    $("#clustername").html('Cluster: ' + clustPrint );
     
     var brandPercentage = brandPercentages[imageClusterName][imageBrandName];
       
